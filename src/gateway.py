@@ -28,7 +28,7 @@ class BaseGateway:
         raise AbstractMethodNotImplementedError  # future plugins will work by subclassing these functions.
 
 
-class RequestGateway(BaseGateway):
+class OtherGateway(BaseGateway):
     pass
 
 
