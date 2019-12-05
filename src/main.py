@@ -1,5 +1,6 @@
 import asyncio
 from gateway import DiscordGateway
+from console import *
 
 loop = asyncio.new_event_loop()
 
