@@ -69,9 +69,10 @@ class DiscordGateway(WebsocketAPIGateway):
         super(WebsocketAPIGateway, self).__init__()
         self.token = "NTUzODc2MzA0NDIwNjY3Mzky.D2UdAQ._ABnKKMRzGyn9aHrJoA7E5Hd1ZU"
         self.heartbeak_interval = None
+        self._ready = False
         self.loop = asyncio.get_event_loop()
         self.dispatch_map = {
-            "READY"
+            "READY": self.ready
         }
 
     async def open(self):
@@ -80,6 +81,7 @@ class DiscordGateway(WebsocketAPIGateway):
         if response["op"] == self.HELLO:
             print("opened connection to discord", response)
         self.heartbeak_interval = response["d"]["heartbeat_interval"]
+        self.loop.create_task(self.accept_dispatch())
 
     async def send_raw(self, data):
         await self.connection.send(data)
@@ -92,13 +94,15 @@ class DiscordGateway(WebsocketAPIGateway):
         while True:
             response = await self.connection.recv()
             response = json.loads(response)
-
+            if (response["op"] == self.DISPATCH):
+                await self.dispatch_map[response['t']](response)
+            else:
+                print(response)
 
     async def heartbeat(self):
         while True:
             await self.send(op=self.HEARTBEAT)
-            print(self.heartbeak_interval/1000)
-            await asyncio.sleep(self.heartbeak_interval/1000, loop=self.loop)
+            await asyncio.sleep(self.heartbeak_interval / 1000, loop=self.loop)
 
     async def start_heartbeat(self):
         self.loop.create_task(self.heartbeat())
@@ -120,7 +124,7 @@ class DiscordGateway(WebsocketAPIGateway):
             }
         }
         await self.send(op=self.IDENTIFY, d=login_str)
-        print(await self.connection.recv())
+        # print(await self.connection.recv())
 
     async def close(self):
         await self.connection.close()
@@ -128,3 +132,6 @@ class DiscordGateway(WebsocketAPIGateway):
     @classmethod
     def sample_hearbeat(cls):
         return json.dumps(dict(op=cls.HEARTBEAT))
+
+    async def ready(self, response):
+        print(f"logged in as {response['d']['user']['username']}#{response['d']['user']['discriminator']}")

@@ -16,7 +16,7 @@ async def main():
     await discord.login()
     await discord.start_heartbeat()
     try:
-        await asyncio.sleep(100)
+        await asyncio.sleep(10)
     finally:
         await discord.close()
         exit()
