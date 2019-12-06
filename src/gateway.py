@@ -6,7 +6,6 @@ import json
 import time
 import bs4
 import datetime
-# from dateutil import tz
 import arrow
 from console import *
 
