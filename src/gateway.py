@@ -191,13 +191,15 @@ class DiscordGateway(WebsocketAPIGateway):
             "token": self.token,
             "properties": {
                 "$os": "windows",
-                "$browser": "chrome",
-                "$device": "disco"
+                "$browser": None,
+                "$device": "CLISH"
             },
             "presence": {
                 "game": {
-                    "name": "Cards Against Humanity",
-                    "type": 0
+                    "name": "Custom Status",
+                    "state": "look its a custom status!",
+                    "emoji": ":eye:",
+                    "type": 4
                 },
             }
         }
