@@ -134,6 +134,7 @@ class DiscordGateway(WebsocketAPIGateway):
             "MESSAGE_CREATE": self.on_message
         }
         self.last_seq = 0
+        self.last_ping = 0
 
     async def open(self):
         self.connection = await websockets.connect("wss://gateway.discord.gg/?v=6&encoding=json")
@@ -148,10 +149,10 @@ class DiscordGateway(WebsocketAPIGateway):
         await self.connection.send(data)
 
     async def send(self, op, s=None, t=None, d=None):
-        print("sent packet")
+        # print("sent packet")
         await self.send_raw(json.dumps(dict(op=op, s=s, t=t, d=d)))
 
-    async def accept_dispatch(self):
+    async def accept_dispatch(self):  # this function runs in its own thread and handles all incoming events
         while True and self.connected:
             try:
                 response = await self.connection.recv()
@@ -159,22 +160,26 @@ class DiscordGateway(WebsocketAPIGateway):
                 return
             response = json.loads(response)
             self.last_seq = response["s"]
-            if response["t"] not in list(self.dispatch_map.keys()):
+            # print(response)
+            if response["t"] and response["t"] not in list(self.dispatch_map.keys()):
                 pass
                 # print(response)
             elif response["op"] == self.HEARTBEAT_ACK:
-                pass  # heartbeat ACKNOWLEDGED
+                self.last_ping = time.time()  # heartbeat ACKNOWLEDGED, however, this is handled somewhere else
             elif response["op"] == self.DISPATCH:
                 await self.dispatch_map[response['t']](response)
             else:
-                print(response)
+                print(response)  # something unhandled
 
-    async def heartbeat(self):
+    async def heartbeat(self):  # this function runs in its own thread and makes sure we stay connected to discord
         while True:
             await self.send(op=self.HEARTBEAT, d=self.last_seq)
             st = time.time()
-            await self.connection.recv()
-            print(f"latency: {round((time.time() - st) * 1000)}ms")
+            stv = self.last_ping
+            while self.last_ping == stv:
+                await asyncio.sleep(0.000001, loop=self.loop)
+                # print("waiting")
+            print(f"latency: {round((self.last_ping - st) * 1000)}ms")
             await asyncio.sleep(self.heartbeak_interval / 1000, loop=self.loop)
 
     async def start_heartbeat(self):
@@ -212,6 +217,7 @@ class DiscordGateway(WebsocketAPIGateway):
 
     async def ready(self, response):
         self.print(f"logged in as {response['d']['user']['username']}#{response['d']['user']['discriminator']}")
+        self.last_seq = 1
 
     async def on_message(self, response):
         self.print(f"{arrow.get(response['d']['timestamp']).datetime.astimezone(tz.tzlocal()).strftime('%H:%M:%S')}: " +

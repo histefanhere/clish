@@ -13,7 +13,7 @@ async def main():
     await discord.start_heartbeat()
     await fb.open()
     try:
-        await asyncio.sleep(10)
+        await asyncio.sleep(20)
     finally:
         await discord.close()
         exit()
