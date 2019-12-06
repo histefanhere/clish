@@ -6,7 +6,7 @@ import json
 import time
 import bs4
 import datetime
-from dateutil import tz
+# from dateutil import tz
 import arrow
 from console import *
 
@@ -245,5 +245,5 @@ class DiscordGateway(WebsocketAPIGateway):
         self.last_seq = 1
 
     async def on_message(self, response):
-        self.print(f"{arrow.get(response['d']['timestamp']).datetime.astimezone(tz.tzlocal()).strftime('%H:%M:%S')}: " +
+        self.print(f"{arrow.get(response['d']['timestamp']).datetime.astimezone(datetime.datetime.now(datetime.timezone.utc).astimezone().tzinfo).strftime('%H:%M:%S')}: " +
                    f"<@{response['d']['author']['username']}> {response['d']['content']}")
