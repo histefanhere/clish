@@ -1,7 +1,9 @@
 import websockets
+import requests
 import asyncio
 import json
 import time
+import bs4
 import datetime
 from dateutil import tz
 import arrow
@@ -24,12 +26,72 @@ class BaseGateway:
     def open(self):
         raise AbstractMethodNotImplementedError
 
+    def login(self):
+        raise AbstractMethodNotImplementedError
+
     def close(self):
         raise AbstractMethodNotImplementedError  # future plugins will work by subclassing these functions.
 
 
 class OtherGateway(BaseGateway):
-    pass
+
+    def __init__(self):
+        super().__init__()
+        self.email = None
+        self.password = None
+        self.cookie = None
+
+
+class FacebookGateway(OtherGateway):
+
+    def __init__(self):
+        super().__init__()
+        self.email = "foggycityboy44@gmail.com"
+        self.password = "ThisIsABot"
+        self.cookie_to_dict = requests.utils.dict_from_cookiejar
+
+    @staticmethod
+    def find_input_fields(html):
+        return bs4.BeautifulSoup(html, "html.parser", parse_only=bs4.SoupStrainer("input"))
+
+    @staticmethod
+    def to_soup(html):
+        return bs4.BeautifulSoup(html, "html.parser")
+
+    async def open(self):
+        if not self.password and not self.email and not self.cookie:
+            raise RuntimeError("no credentials for facebook")
+
+        if self.cookie:
+            return
+
+        await self.login()
+
+    async def login(self):
+        soup = self.find_input_fields(requests.get("https://m.facebook.com/").text)
+        data = dict(
+            (elem["name"], elem["value"])
+            for elem in soup
+            if elem.has_attr("value") and elem.has_attr("name")
+        )
+        data["email"] = self.email
+        data["pass"] = self.password
+        data["login"] = "Log In"
+
+        r = requests.post("https://m.facebook.com/login.php", data=data)
+
+        if "https://m.facebook.com/home.php" in r.url:
+            homepage = self.to_soup(r.content)
+            for link in homepage.find_all("a"):
+                if link.string == "Photos":
+                    parts = link.attrs["href"].split(".")
+                    print(f"logged in as {parts[0].replace('/', '').capitalize()} {parts[1].capitalize()}")
+            self.cookie = self.cookie_to_dict(r.history[0].cookies)
+        else:
+            print("facebook login failed")
+
+    async def close(self):
+        self.cookie = None
 
 
 class APIGateway(BaseGateway):
