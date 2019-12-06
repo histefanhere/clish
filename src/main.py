@@ -15,6 +15,7 @@ async def main():
     try:
         await asyncio.sleep(20)
     finally:
+        await fb.close()
         await discord.close()
         exit()
 

@@ -1,5 +1,6 @@
 import websockets
 import requests
+import aiohttp
 import asyncio
 import json
 import time
@@ -48,7 +49,8 @@ class FacebookGateway(OtherGateway):
         super().__init__()
         self.email = "foggycityboy44@gmail.com"
         self.password = "ThisIsABot"
-        self.cookie_to_dict = requests.utils.dict_from_cookiejar
+        self.session = aiohttp.ClientSession()
+        self.chats = {}
 
     @staticmethod
     def find_input_fields(html):
@@ -68,7 +70,9 @@ class FacebookGateway(OtherGateway):
         await self.login()
 
     async def login(self):
-        soup = self.find_input_fields(requests.get("https://m.facebook.com/").text)
+
+        r1 = await self.session.get("https://m.facebook.com/")
+        soup = self.find_input_fields(await r1.text())
         data = dict(
             (elem["name"], elem["value"])
             for elem in soup
@@ -78,20 +82,36 @@ class FacebookGateway(OtherGateway):
         data["pass"] = self.password
         data["login"] = "Log In"
 
-        r = requests.post("https://m.facebook.com/login.php", data=data)
+        r = await self.session.post("https://m.facebook.com/login.php", data=data)
 
-        if "https://m.facebook.com/home.php" in r.url:
-            homepage = self.to_soup(r.content)
+        if "save-device" in str(r.url):
+            r = await self.session.get("https://m.facebook.com/login/save-device/cancel/")
+            r = await self.session.get("https://m.facebook.com/home.php")
+
+        if "https://m.facebook.com/home.php" in str(r.url):
+            homepage = self.to_soup(await r.text())
             for link in homepage.find_all("a"):
                 if link.string == "Photos":
                     parts = link.attrs["href"].split(".")
                     print(f"logged in as {parts[0].replace('/', '').capitalize()} {parts[1].capitalize()}")
-            self.cookie = self.cookie_to_dict(r.history[0].cookies)
+
+            chats = await self.session.get("https://m.facebook.com/messages")
+            chat_soup = self.to_soup(await chats.text())
+            for link in chat_soup.find_all("a"):
+                try:
+                    if link.attrs["href"].startswith("/messages/read"):
+                        self.chats.update({f"{link.contents[0]}": link.attrs["href"]})
+                except:
+                    pass
+            # print(self.chats)
         else:
             print("facebook login failed")
 
+    def get_convos(self):
+        pass
+
     async def close(self):
-        self.cookie = None
+        await self.session.close()
 
 
 class APIGateway(BaseGateway):
@@ -140,7 +160,10 @@ class DiscordGateway(WebsocketAPIGateway):
         self.connection = await websockets.connect("wss://gateway.discord.gg/?v=6&encoding=json")
         response = json.loads(await self.connection.recv())
         if response["op"] == self.HELLO:
-            print("opened connection to discord", response)
+            pass
+            # print("opened connection to discord", response)
+        else:
+            raise RuntimeError("failed to connect to discord")
         self.heartbeak_interval = response["d"]["heartbeat_interval"]
         self.connected = True
         self.loop.create_task(self.accept_dispatch())
