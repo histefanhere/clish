@@ -49,7 +49,7 @@ def demo(s):
                 # button pressed isn't a character - e.g. Ctrl, Alt, Enter, Backspace, etc.
                 pass
             dtools.write(1, s.height - 2, msg)
-
+            dtools.write(10, 10, str(key_code))
             s.refresh()
 
 
