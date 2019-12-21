@@ -3,7 +3,7 @@ import errors as e
 vert = u'┃'
 hort = u'━'
 corns = [u'┏', u'┓', u'┗ ', u'┛']
-
+inters = [u'┫', u'┻', u'┳', u'┣']
 
 # Use this class for useful drawing tools
 class Drawtool():
@@ -43,8 +43,10 @@ class Drawtool():
 
 
 class Region:
-    def __init__(self, border=True):
+    def __init__(self, name, border=True, show_name=False):
+        self.name = name
         self.has_border = border
+        self.show_name = show_name
 
     # Draw the border for this region. Will do this automatically if border=True is specified
     def border(self, s, orig, size):
@@ -55,6 +57,10 @@ class Region:
     def render(self, s, orig, size):
         if self.has_border:
             self.border(s, orig, size)
+            if self.show_name:
+                # Render the name of the region in the border
+                Drawtool(s).write(orig[0]+2, orig[1], f"{inters[0]}{self.name}{inters[3]}")
+
             self.draw(s, (x + 1 for x in orig), (x - 2 for x in size))
         else:
             self.draw(s, orig, size)

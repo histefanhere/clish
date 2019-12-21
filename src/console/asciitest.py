@@ -7,19 +7,19 @@ from canvas import Window, Region, Drawtool
 
 dtools = Drawtool()
 
-main_window = Window("Main", 3, 1)
+main_window = Window("Main", 4, 1)
 
 
 class Test_Region(Region):
-    def __init__(self):
-        super().__init__(border=True)
+    def __init__(self, name):
+        super().__init__(name, border=True, show_name=True)
 
     def draw(self, s, orig, size):
         dtools.write(*orig, "Hello world!")
 
 
-main_window.add_region(Test_Region(), 0, 0)
-main_window.add_region(Test_Region(), 1, 0, rowspan=2)
+main_window.add_region(Test_Region("First Region"), 0, 0)
+main_window.add_region(Test_Region("Second Region"), 1, 0, rowspan=3)
 
 
 def demo(s):
