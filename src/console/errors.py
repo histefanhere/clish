@@ -5,5 +5,6 @@ class AbstractMethodNotImplementedError(Exception):
 class RegionOutOfBoundsError(Exception):
     pass
 
+
 class RegionSpanOutOfBoundsError(Exception):
     pass
