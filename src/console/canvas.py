@@ -4,6 +4,7 @@ vert = u'┃'
 hort = u'━'
 corns = [u'┏', u'┓', u'┗ ', u'┛']
 
+
 # Use this class for useful drawing tools
 class Drawtool():
     # Screen can be passed on init or via set_screen() method
@@ -22,23 +23,24 @@ class Drawtool():
         w = w_ - 1
         h = h_ - 1
         self.write(x, y, corns[0])
-        self.write(x+w, y, corns[1])
-        self.write(x, y+h, corns[2])
-        self.write(x+w, y+h, corns[3])
+        self.write(x + w, y, corns[1])
+        self.write(x, y + h, corns[2])
+        self.write(x + w, y + h, corns[3])
 
         # vertical lines
-        for x_ord in [x, x+w]:
-            for i in range(y+1, y+h):
+        for x_ord in [x, x + w]:
+            for i in range(y + 1, y + h):
                 self.write(x_ord, i, vert)
 
         # horizontal lines
-        for y_ord in [y, y+h]:
-            for i in range(x+1, x+w):
+        for y_ord in [y, y + h]:
+            for i in range(x + 1, x + w):
                 self.write(i, y_ord, hort)
 
     def set_screen(self, s):
         self.screen = s
         return self
+
 
 class Region:
     def __init__(self, border=True):
@@ -60,7 +62,7 @@ class Region:
     def draw(self, *args, **kwargs):
         raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
 
-class Window():
+class Window:
     def __init__(self, name, divs_x, divs_y):
         self.name = name
         self.divs = (divs_x, divs_y)
@@ -71,11 +73,13 @@ class Window():
     def add_region(self, region, x, y, *, rowspan=1, colspan=1):
         # First, error checks. We have to make sure the given origin and dimensions is within the boundries
         if not (0 <= x < self.divs[0] and 0 <= y < self.divs[1]):
-            raise e.RegionOutOfBoundsError(f"In {self.name} Window region was created at ({x}, {y}) while divisions are ({self.divs[0]}, {self.divs[1]})")
+            raise e.RegionOutOfBoundsError(
+                f"In {self.name} Window region was created at ({x}, {y}) while divisions are ({self.divs[0]}, {self.divs[1]})")
             return
 
         if not (0 < x + rowspan <= self.divs[0] and 0 < y + colspan <= self.divs[1]):
-            raise e.RegionSpanOutOfBoundsError(f"In {self.name} Window region was created with span ({rowspan}, {colspan}) while divisions are ({self.divs[0]}, {self.divs[1]})")
+            raise e.RegionSpanOutOfBoundsError(
+                f"In {self.name} Window region was created with span ({rowspan}, {colspan}) while divisions are ({self.divs[0]}, {self.divs[1]})")
             return
 
         # Give the region an instance of the window if it is needed
