@@ -57,6 +57,9 @@ class Region:
         else:
             self.draw(s, orig, size)
 
+    def draw(self, *args, **kwargs):
+        raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
+
 class Window():
     def __init__(self, name, divs_x, divs_y):
         self.name = name
