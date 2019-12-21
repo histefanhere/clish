@@ -9,10 +9,7 @@ import datetime
 import arrow
 from console import *
 
-
-class AbstractMethodNotImplementedError(Exception):
-    pass
-
+from errors import AbstractMethodNotImplementedError
 
 class BaseGateway:
 

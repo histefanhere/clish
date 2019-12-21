@@ -1,3 +1,5 @@
+import errors as e
+
 vert = u'┃'
 hort = u'━'
 corns = [u'┏', u'┓', u'┗ ', u'┛']
@@ -56,13 +58,23 @@ class Region:
             self.draw(s, orig, size)
 
 class Window():
-    def __init__(self, divs_x, divs_y):
+    def __init__(self, name, divs_x, divs_y):
+        self.name = name
         self.divs = (divs_x, divs_y)
         self.regions = []
 
     # Add a region to the window in the `x`th column division and `y`th row division
     # 0 <= x < divs_x, and 0 <= y < divs_y
     def add_region(self, region, x, y, *, rowspan=1, colspan=1):
+        # First, error checks. We have to make sure the given origin and dimensions is within the boundries
+        if not (0 <= x < self.divs[0] and 0 <= y < self.divs[1]):
+            raise e.RegionOutOfBoundsError(f"In {self.name} Window region was created at ({x}, {y}) while divisions are ({self.divs[0]}, {self.divs[1]})")
+            return
+
+        if not (0 < x + rowspan <= self.divs[0] and 0 < y + colspan <= self.divs[1]):
+            raise e.RegionSpanOutOfBoundsError(f"In {self.name} Window region was created with span ({rowspan}, {colspan}) while divisions are ({self.divs[0]}, {self.divs[1]})")
+            return
+
         # Give the region an instance of the window if it is needed
         region.window = self
 
