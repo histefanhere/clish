@@ -7,9 +7,9 @@ import time
 import bs4
 import datetime
 import arrow
-from console import *
 
-from errors import AbstractMethodNotImplementedError
+from constants import errors
+AbstractMethodNotImplementedError = errors.AbstractMethodNotImplementedError
 
 class BaseGateway:
 

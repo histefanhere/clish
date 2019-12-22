@@ -3,23 +3,37 @@ from asciimatics.event import KeyboardEvent
 from asciimatics.exceptions import ResizeScreenError
 import sys
 
-from canvas import Window, Region, Drawtool
+from constants import colours
+from canvas import Region, Window, Drawtool
 
 dtools = Drawtool()
 
-main_window = Window("Main", 4, 1)
+interfaces = ["Discord", "Messenger"]
+main_window = Window("CLISH", 10, 10)
 
 
 class Test_Region(Region):
-    def __init__(self, name):
-        super().__init__(name, border=True, show_name=True)
+    def __init__(self):
+        super().__init__("region", border=True)
 
-    def draw(self, s, orig, size):
+    def draw(self, s, orig, size, selected):
         dtools.write(*orig, "Hello world!")
 
 
-main_window.add_region(Test_Region("First Region"), 0, 0)
-main_window.add_region(Test_Region("Second Region"), 1, 0, rowspan=3)
+class topMenu(Region):
+    def __init__(self):
+        super().__init__("top region", border=True)
+
+    def draw(self, s, orig, size, selected):
+        dtools.write(*orig, "\t".join(interfaces), colour=colours.green)
+
+
+main_window.add_region(topMenu(), 0, 0, rowspan=10)
+main_window.configure_row(0, height=3)
+main_window.add_region(Test_Region(), 0, 1, colspan=9, rowspan=2)
+main_window.add_region(Test_Region(), 2, 1, colspan=8, rowspan=6)
+main_window.add_region(Test_Region(), 8, 1, colspan=9, rowspan=2)
+main_window.add_region(Test_Region(), 2, 9, rowspan=6)
 
 
 def demo(s):
@@ -37,6 +51,9 @@ def demo(s):
             raise ResizeScreenError("yes")
 
         event = s.get_event()
+        if event:
+            main_window.parse_event(s, event)
+
         if isinstance(event, KeyboardEvent):
             dtools.write(0, 0, str(s.dimensions))
             key_code = event.key_code
@@ -49,7 +66,7 @@ def demo(s):
                 # button pressed isn't a character - e.g. Ctrl, Alt, Enter, Backspace, etc.
                 pass
             dtools.write(1, s.height - 2, msg)
-            dtools.write(10, 10, str(key_code))
+
             s.refresh()
 
 

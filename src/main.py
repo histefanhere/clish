@@ -1,6 +1,5 @@
 import asyncio
 from gateway import DiscordGateway, FacebookGateway
-from console import *
 
 loop = asyncio.new_event_loop()
 

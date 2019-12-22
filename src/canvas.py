@@ -1,5 +1,6 @@
-import errors as e
-import colours
+from asciimatics.event import KeyboardEvent
+
+from constants import errors as e
 
 vert = u'┃'
 hort = u'━'
@@ -51,20 +52,19 @@ class Region:
 
     # Draw the border for this region. Will do this automatically if border=True is specified
     def border(self, s, orig, size):
-        colour = colours.random_colour()
         d = Drawtool(s)
-        d.box(*orig, *size, colour=colour)
+        d.box(*orig, *size)
         if self.show_name:
             # Render the name of the region in the border
-            Drawtool(s).write(orig[0]+2, orig[1], f"{inters[0]}{self.name}{inters[3]}", colour=colour)
+            Drawtool(s).write(orig[0]+2, orig[1], f"{inters[0]}{self.name}{inters[3]}")
 
     # Render the region. region.draw() must be manually defined
-    def render(self, s, orig, size):
+    def render(self, s, orig, size, selected):
         if self.has_border:
             self.border(s, orig, size)
-            self.draw(s, (x + 1 for x in orig), (x - 2 for x in size))
+            self.draw(s, (x + 1 for x in orig), (x - 2 for x in size), selected)
         else:
-            self.draw(s, orig, size)
+            self.draw(s, orig, size, selected)
 
     def draw(self, *args, **kwargs):
         raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
@@ -73,7 +73,10 @@ class Window:
     def __init__(self, name, divs_x, divs_y):
         self.name = name
         self.divs = (divs_x, divs_y)
+        self.configurations = []
         self.regions = []
+        # The first region to be added to the window is the selected one
+        self.selected = 0
 
     # Add a region to the window in the `x`th column division and `y`th row division
     # 0 <= x < divs_x, and 0 <= y < divs_y
@@ -96,20 +99,67 @@ class Window:
         self.regions.append({
             "region": region,
             "div": (x, y),
-            "span": (rowspan, colspan)
+            "span": (rowspan, colspan),
+            "selected": True if len(self.regions) == 0 else False
         })
 
     # Render all the regions defined in the window
-    def render(self, s):
-        for rd in self.regions:
-            # Calculate its size dimension and origion position
+    # Or just a specific region if `region` is specified
+    def render(self, s, region=None):
+        def calc_and_render(rd):
+            # Calculate its size dimension and origin position
             div_size = (s.width // self.divs[0], s.height // self.divs[1])
 
             size = (div_size[0] * rd['span'][0], div_size[1] * rd['span'][1])
             orig = (div_size[0] * rd['div'][0], div_size[1] * rd['div'][1])
 
             # Render the region!
-            rd['region'].render(s, orig, size)
+            rd['region'].render(s, orig, size, rd['selected'])
+
+        if region:
+            calc_and_render(region)
+            return
+
+        for rd in self.regions:
+            calc_and_render(rd)
 
         # update the screen!
         s.refresh()
+
+    def parse_event(self, s, event):
+        if isinstance(event, KeyboardEvent):
+            key_code = event.key_code
+
+            # -301 is TAB, -302 is SHIFT + TAB
+            if key_code in (-301, -302):
+                # We need to re-render the currently selected region, and the next
+                self.regions[self.selected]['selected'] = False
+                self.render(s, self.regions[self.selected])
+
+                diff = 1
+                if key_code == -302:
+                    diff = -1
+                self.selected = (self.selected + diff) % len(self.regions)
+
+                self.regions[self.selected]['selected'] = True
+                self.render(s, self.regions[self.selected])
+
+                s.refresh()
+
+    # Set the height of a row to a certain height
+    def configure_row(self, row, height):
+        self.configurations.append({
+            "type": "row",
+            "key": row,
+            "value": height
+        })
+
+
+    # Set the width of a column to a certain width
+    def configure_column(self, column, width):
+        self.configurations.append({
+            "type": "column",
+            "key": column,
+            "value": width
+        })
+
