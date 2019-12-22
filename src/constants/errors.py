@@ -8,3 +8,6 @@ class RegionOutOfBoundsError(Exception):
 
 class RegionSpanOutOfBoundsError(Exception):
     pass
+
+class OutOfBoundsError(Exception):
+    pass

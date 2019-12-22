@@ -62,7 +62,7 @@ class Region:
     def render(self, s, orig, size, selected):
         if self.has_border:
             self.border(s, orig, size)
-            self.draw(s, (x + 1 for x in orig), (x - 2 for x in size), selected)
+            self.draw(s, tuple(x + 1 for x in orig), tuple(x - 2 for x in size), selected)
         else:
             self.draw(s, orig, size, selected)
 
@@ -70,13 +70,19 @@ class Region:
         raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
 
 class Window:
-    def __init__(self, name, divs_x, divs_y):
+    def __init__(self, s, name, divs_x, divs_y):
+        self.s = s
+        self.width = s.width
+        self.height = s.height
         self.name = name
         self.divs = (divs_x, divs_y)
-        self.configurations = []
         self.regions = []
         # The first region to be added to the window is the selected one
         self.selected = 0
+
+        # Widths/heights of the columns\rows, respectivley.
+        self.columns = list([{"type":"auto", "value": s.width // self.divs[0]} for x in range(divs_x)])
+        self.rows = list([{"type":"auto", "value": s.height // self.divs[1]} for x in range(divs_y)])
 
     # Add a region to the window in the `x`th column division and `y`th row division
     # 0 <= x < divs_x, and 0 <= y < divs_y
@@ -108,10 +114,20 @@ class Window:
     def render(self, s, region=None):
         def calc_and_render(rd):
             # Calculate its size dimension and origin position
-            div_size = (s.width // self.divs[0], s.height // self.divs[1])
+            # div_size = (s.width // self.divs[0], s.height // self.divs[1])
 
-            size = (div_size[0] * rd['span'][0], div_size[1] * rd['span'][1])
-            orig = (div_size[0] * rd['div'][0], div_size[1] * rd['div'][1])
+            # size = (div_size[0] * rd['span'][0], div_size[1] * rd['span'][1])
+            # orig = (div_size[0] * rd['div'][0], div_size[1] * rd['div'][1])
+
+            # yikes.
+            size = (
+                sum(map(lambda n: self.columns[n]['value'], range(rd['div'][0], rd['div'][0] + rd['span'][0]))),
+                sum(map(lambda n: self.rows[n]['value'], range(rd['div'][1], rd['div'][1] + rd['span'][1])))
+            )
+            orig = (
+                sum(map(lambda n: self.columns[n]['value'], range(0, rd['div'][0]))),
+                sum(map(lambda n: self.rows[n]['value'], range(0, rd['div'][1])))
+            )
 
             # Render the region!
             rd['region'].render(s, orig, size, rd['selected'])
@@ -147,19 +163,41 @@ class Window:
                 s.refresh()
 
     # Set the height of a row to a certain height
-    def configure_row(self, row, height):
-        self.configurations.append({
-            "type": "row",
-            "key": row,
+    def configure_row(self, n, height):
+        if not (0 <= n < len(self.rows)):
+            raise errors.OutOfBoundsError(f"Attempted to configure row {row}, which is out of the range 0 to {len(self.rows)-1}")
+            return
+
+        self.rows[n] = {
+            "type": "manual",
             "value": height
-        })
+        }
+
+        # Get amount of auto rows
+        def is_auto(t):
+            if t['type'] == "auto":
+                return 1
+            else:
+                return 0
+        # amount = sum(map(is_auto, self.rows))
+        amount = len([x for x in self.rows if x['type'] == 'auto'])
+
+        auto_height = self.height - sum([x['value'] for x in self.rows if x['type'] == "manual"])
+        self.auto_height = auto_height
+        # Convert rows. if a row is auto, set its hight to a factor of the remaining space
+        new_rows = []
+        for row in self.rows:
+            if is_auto(row):
+                new_rows.append({
+                    "type": "auto",
+                    "value": auto_height // amount
+                })
+            else:
+                new_rows.append(row)
+        self.rows = new_rows
 
 
     # Set the width of a column to a certain width
     def configure_column(self, column, width):
-        self.configurations.append({
-            "type": "column",
-            "key": column,
-            "value": width
-        })
+        pass
 

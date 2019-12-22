@@ -2,6 +2,7 @@ from asciimatics.screen import Screen
 from asciimatics.event import KeyboardEvent
 from asciimatics.exceptions import ResizeScreenError
 import sys
+from time import sleep
 
 from constants import colours
 from canvas import Region, Window, Drawtool
@@ -9,15 +10,13 @@ from canvas import Region, Window, Drawtool
 dtools = Drawtool()
 
 interfaces = ["Discord", "Messenger"]
-main_window = Window("CLISH", 10, 10)
-
 
 class Test_Region(Region):
     def __init__(self):
         super().__init__("region", border=True)
 
     def draw(self, s, orig, size, selected):
-        dtools.write(*orig, "Hello world!")
+        dtools.write(*orig, "#")
 
 
 class topMenu(Region):
@@ -27,20 +26,21 @@ class topMenu(Region):
     def draw(self, s, orig, size, selected):
         dtools.write(*orig, "\t".join(interfaces), colour=colours.green)
 
-
-main_window.add_region(topMenu(), 0, 0, rowspan=10)
-main_window.configure_row(0, height=3)
-main_window.add_region(Test_Region(), 0, 1, colspan=9, rowspan=2)
-main_window.add_region(Test_Region(), 2, 1, colspan=8, rowspan=6)
-main_window.add_region(Test_Region(), 8, 1, colspan=9, rowspan=2)
-main_window.add_region(Test_Region(), 2, 9, rowspan=6)
-
-
 def demo(s):
     s.clear()
 
     # Update the screen instance for drawing tools
     dtools.set_screen(s)
+
+    main_window = Window(s, "CLISH", 3, 3)
+
+    main_window.configure_row(0, height=3)
+    main_window.configure_row(2, height=3)
+    main_window.add_region(topMenu(), 0, 0, rowspan=3)
+    main_window.add_region(Test_Region(), 0, 1, colspan=2)
+    main_window.add_region(Test_Region(), 1, 1)
+    main_window.add_region(Test_Region(), 2, 1, colspan=2)
+    main_window.add_region(Test_Region(), 1, 2)
 
     main_window.render(s)
 
