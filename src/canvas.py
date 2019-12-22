@@ -109,6 +109,9 @@ class Window:
             "selected": True if len(self.regions) == 0 else False
         })
 
+        # Return self for easy chaining
+        return self
+
     # Render all the regions defined in the window
     # Or just a specific region if `region` is specified
     def render(self, s, region=None):
@@ -208,6 +211,9 @@ class Window:
                 new_rows.append(row)
         self.rows = new_rows
 
+        # Return self for easy chaining
+        return self
+
 
     # Set the width of a column to a certain width
     def configure_column(self, n, *, width=None, weight=None):
@@ -254,3 +260,5 @@ class Window:
                 new_columns.append(column)
         self.columns = new_columns
 
+        # Return self for easy chaining
+        return self
