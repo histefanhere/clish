@@ -36,6 +36,7 @@ def demo(s):
 
     main_window.configure_row(0, height=3)
     main_window.configure_row(2, height=3)
+    main_window.configure_column(1, weight=2)
     main_window.add_region(topMenu(), 0, 0, rowspan=3)
     main_window.add_region(Test_Region(), 0, 1, colspan=2)
     main_window.add_region(Test_Region(), 1, 1)

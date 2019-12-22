@@ -163,15 +163,21 @@ class Window:
                 s.refresh()
 
     # Set the height of a row to a certain height
-    def configure_row(self, n, height):
+    def configure_row(self, n, *, height, weight):
         if not (0 <= n < len(self.rows)):
-            raise errors.OutOfBoundsError(f"Attempted to configure row {row}, which is out of the range 0 to {len(self.rows)-1}")
+            raise errors.OutOfBoundsError(f"Attempted to configure row {n}, which is out of the range 0 to {len(self.rows)-1}")
             return
 
-        self.rows[n] = {
-            "type": "manual",
-            "value": height
-        }
+        if height:
+            self.rows[n] = {
+                "type": "fixed",
+                "value": height
+            }
+        elif weight:
+            self.rows[n] = {
+                "type": "heavy",
+                "weight": weight
+            }
 
         # Get amount of auto rows
         def is_auto(t):
@@ -180,9 +186,9 @@ class Window:
             else:
                 return 0
         # amount = sum(map(is_auto, self.rows))
-        amount = len([x for x in self.rows if x['type'] == 'auto'])
+        amount = len([x for x in self.rows if x['type'] == 'auto']) + sum(map(lambda x: x['weight'], [x for x in self.rows if x['type'] == "heavy"]))
 
-        auto_height = self.height - sum([x['value'] for x in self.rows if x['type'] == "manual"])
+        auto_height = self.height - sum([x['value'] for x in self.rows if x['type'] == "fixed"])
         self.auto_height = auto_height
         # Convert rows. if a row is auto, set its hight to a factor of the remaining space
         new_rows = []
@@ -192,12 +198,59 @@ class Window:
                     "type": "auto",
                     "value": auto_height // amount
                 })
+            elif row['type'] == 'heavy':
+                new_rows.append({
+                    "type": "heavy",
+                    "weight": row['weight'],
+                    "value": auto_height // amount * row['weight']
+                })
             else:
                 new_rows.append(row)
         self.rows = new_rows
 
 
     # Set the width of a column to a certain width
-    def configure_column(self, column, width):
-        pass
+    def configure_column(self, n, *, width=None, weight=None):
+        if not (0 <= n < len(self.columns)):
+            raise errors.OutOfBoundsError(f"Attempted to configure row {n}, which is out of the range 0 to {len(self.columns)-1}")
+            return
+
+        if width:
+            self.columns[n] = {
+                "type": "fixed",
+                "value": width
+            }
+        elif weight:
+            self.columns[n] = {
+                "type": "heavy",
+                "weight": weight
+            }
+
+        # Get amount of auto rows
+        def is_auto(t):
+            if t['type'] == "auto":
+                return 1
+            else:
+                return 0
+        # amount = sum(map(is_auto, self.rows))
+        amount = len([x for x in self.columns if x['type'] == 'auto']) + sum(map(lambda x: x['weight'], [x for x in self.columns if x['type'] == "heavy"]))
+
+        auto_width = self.width - sum([x['value'] for x in self.columns if x['type'] == "fixed"])
+        # Convert rows. if a row is auto, set its hight to a factor of the remaining space
+        new_columns = []
+        for column in self.columns:
+            if column['type'] == 'auto':
+                new_columns.append({
+                    "type": "auto",
+                    "value": auto_width // amount
+                })
+            elif column['type'] == 'heavy':
+                new_columns.append({
+                    "type": "heavy",
+                    "weight": column['weight'],
+                    "value": auto_width // amount * column['weight']
+                })
+            else:
+                new_columns.append(column)
+        self.columns = new_columns
 
