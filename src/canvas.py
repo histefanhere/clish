@@ -163,7 +163,7 @@ class Window:
                 s.refresh()
 
     # Set the height of a row to a certain height
-    def configure_row(self, n, *, height, weight):
+    def configure_row(self, n, *, height=None, weight=None):
         if not (0 <= n < len(self.rows)):
             raise errors.OutOfBoundsError(f"Attempted to configure row {n}, which is out of the range 0 to {len(self.rows)-1}")
             return
