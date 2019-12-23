@@ -40,8 +40,8 @@ def demo(s):
     main_window.add_region(topMenu(), 0, 0, rowspan=3)
     main_window.add_region(Test_Region(), 0, 1, colspan=2)
     main_window.add_region(Test_Region(), 1, 1)
-    main_window.add_region(Test_Region(), 2, 1, colspan=2)
     main_window.add_region(Test_Region(), 1, 2)
+    main_window.add_region(Test_Region(), 2, 1, colspan=2)
 
     main_window.render(s)
 

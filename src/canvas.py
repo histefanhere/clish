@@ -1,6 +1,7 @@
 from asciimatics.event import KeyboardEvent
 
 from constants import errors as e
+from constants import colours
 
 vert = u'┃'
 hort = u'━'
@@ -51,9 +52,9 @@ class Region:
         self.show_name = show_name
 
     # Draw the border for this region. Will do this automatically if border=True is specified
-    def border(self, s, orig, size):
+    def border(self, s, orig, size, **kwargs):
         d = Drawtool(s)
-        d.box(*orig, *size)
+        d.box(*orig, *size, **kwargs)
         if self.show_name:
             # Render the name of the region in the border
             Drawtool(s).write(orig[0]+2, orig[1], f"{inters[0]}{self.name}{inters[3]}")
@@ -61,7 +62,7 @@ class Region:
     # Render the region. region.draw() must be manually defined
     def render(self, s, orig, size, selected):
         if self.has_border:
-            self.border(s, orig, size)
+            self.border(s, orig, size, colour=colours.white if selected else colours.cyan)
             self.draw(s, tuple(x + 1 for x in orig), tuple(x - 2 for x in size), selected)
         else:
             self.draw(s, orig, size, selected)
