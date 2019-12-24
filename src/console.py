@@ -26,6 +26,24 @@ class topMenu(Region):
     def draw(self, s, orig, size, selected):
         dtools.print(*orig, "\t".join(interfaces), colour=colours.green)
 
+
+class Entry(Region):
+    def __init__(self):
+        super().__init__("Entry")
+        self.msg = ""
+
+    def draw(self, s, orig, size, selected):
+        dtools.print(*orig, self.msg)
+
+    def key(self, s, key_code):
+        # Standard keyboard characters + numbers + symbols
+        if 32 <= key_code <= 126:
+            key = str(chr(key_code))
+            self.msg += key
+
+            self.window.render(s, self)
+
+
 def demo(s):
     s.clear()
 
@@ -40,7 +58,7 @@ def demo(s):
     main_window.add_region(topMenu(), 0, 0, rowspan=3)
     main_window.add_region(Test_Region(), 0, 1, colspan=2)
     main_window.add_region(Test_Region(), 1, 1)
-    main_window.add_region(Test_Region(), 1, 2)
+    main_window.add_region(Entry(), 1, 2)
     main_window.add_region(Test_Region(), 2, 1, colspan=2)
 
     main_window.render(s)
@@ -54,20 +72,6 @@ def demo(s):
         event = s.get_event()
         if event:
             main_window.parse_event(s, event)
-
-        if isinstance(event, KeyboardEvent):
-            dtools.print(0, 0, str(s.dimensions))
-            key_code = event.key_code
-            # key = str(chr(event.key_code))
-            # msg += key
-            if 32 <= key_code <= 126:
-                key = str(chr(event.key_code))
-                msg += key
-            else:
-                # button pressed isn't a character - e.g. Ctrl, Alt, Enter, Backspace, etc.
-                pass
-            dtools.print(1, s.height - 2, msg)
-
             s.refresh()
 
 

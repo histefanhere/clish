@@ -70,6 +70,10 @@ class Region:
     def draw(self, *args, **kwargs):
         raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
 
+    # Should be manually defined if this is desired
+    def key(self, s, key_code):
+        pass
+
 class Window:
     def __init__(self, s, name, divs_x, divs_y):
         self.s = s
@@ -137,7 +141,18 @@ class Window:
             rd['region'].render(s, orig, size, rd['selected'])
 
         if region:
-            calc_and_render(region)
+            rd = region
+            if isinstance(region, Region):
+                for r in self.regions:
+                    if r['region'] == region:
+                        rd = r
+                        break
+                else:
+                    raise Exception("Region not found")
+
+            calc_and_render(rd)
+
+            s.refresh()
             return
 
         for rd in self.regions:
@@ -149,6 +164,8 @@ class Window:
     def parse_event(self, s, event):
         if isinstance(event, KeyboardEvent):
             key_code = event.key_code
+
+            self.regions[self.selected]['region'].key(s, key_code)
 
             # -301 is TAB, -302 is SHIFT + TAB
             if key_code in (-301, -302):
