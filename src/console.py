@@ -16,7 +16,7 @@ class Test_Region(Region):
         super().__init__("region", border=True)
 
     def draw(self, s, orig, size, selected):
-        dtools.write(*orig, "#")
+        dtools.print(*orig, "#")
 
 
 class topMenu(Region):
@@ -24,7 +24,7 @@ class topMenu(Region):
         super().__init__("top region", border=True)
 
     def draw(self, s, orig, size, selected):
-        dtools.write(*orig, "\t".join(interfaces), colour=colours.green)
+        dtools.print(*orig, "\t".join(interfaces), colour=colours.green)
 
 def demo(s):
     s.clear()
@@ -56,7 +56,7 @@ def demo(s):
             main_window.parse_event(s, event)
 
         if isinstance(event, KeyboardEvent):
-            dtools.write(0, 0, str(s.dimensions))
+            dtools.print(0, 0, str(s.dimensions))
             key_code = event.key_code
             # key = str(chr(event.key_code))
             # msg += key
@@ -66,7 +66,7 @@ def demo(s):
             else:
                 # button pressed isn't a character - e.g. Ctrl, Alt, Enter, Backspace, etc.
                 pass
-            dtools.write(1, s.height - 2, msg)
+            dtools.print(1, s.height - 2, msg)
 
             s.refresh()
 

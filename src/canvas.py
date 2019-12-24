@@ -18,27 +18,27 @@ class Drawtool():
     # Write `text` to the screen at `(x, y)`.
     # For an explanation of the arguments, check this link:
     # https://asciimatics.readthedocs.io/en/stable/asciimatics.html#asciimatics.screen.Canvas.print_at
-    def write(self, x, y, text, colour=7, attr=0, bg=0, transparent=False):
+    def print(self, x, y, text, colour=7, attr=0, bg=0, transparent=False):
         self.screen.print_at(text, x, y, colour, attr, bg, transparent)
 
     # Draw a box at `(x, y)` `w` wide and `h` high. Used for drawing borders.
     def box(self, x, y, w_, h_, **kwargs):
         w = w_ - 1
         h = h_ - 1
-        self.write(x, y, corns[0], **kwargs)
-        self.write(x + w, y, corns[1], **kwargs)
-        self.write(x, y + h, corns[2], **kwargs)
-        self.write(x + w, y + h, corns[3], **kwargs)
+        self.print(x, y, corns[0], **kwargs)
+        self.print(x + w, y, corns[1], **kwargs)
+        self.print(x, y + h, corns[2], **kwargs)
+        self.print(x + w, y + h, corns[3], **kwargs)
 
         # vertical lines
         for x_ord in [x, x + w]:
             for i in range(y + 1, y + h):
-                self.write(x_ord, i, vert, **kwargs)
+                self.print(x_ord, i, vert, **kwargs)
 
         # horizontal lines
         for y_ord in [y, y + h]:
             for i in range(x + 1, x + w):
-                self.write(i, y_ord, hort, **kwargs)
+                self.print(i, y_ord, hort, **kwargs)
 
     def set_screen(self, s):
         self.screen = s
@@ -57,7 +57,7 @@ class Region:
         d.box(*orig, *size, **kwargs)
         if self.show_name:
             # Render the name of the region in the border
-            Drawtool(s).write(orig[0]+2, orig[1], f"{inters[0]}{self.name}{inters[3]}")
+            Drawtool(s).print(orig[0]+2, orig[1], f"{inters[0]}{self.name}{inters[3]}")
 
     # Render the region. region.draw() must be manually defined
     def render(self, s, orig, size, selected):
