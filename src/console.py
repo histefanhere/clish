@@ -2,7 +2,7 @@ from asciimatics.screen import Screen
 from asciimatics.event import KeyboardEvent
 from asciimatics.exceptions import ResizeScreenError
 import sys
-from time import sleep
+from time import sleep, time
 
 from constants import colours
 from canvas import Region, Window, Drawtool
@@ -31,6 +31,8 @@ class Entry_Region(Region):
     def __init__(self):
         super().__init__("Entry", show_name=True)
         self.msg = ""
+        self.eol_colour = 0
+        self.cursor_pos = 0
 
     def draw(self, s, orig, size, selected):
         if self.msg == "":
@@ -38,6 +40,9 @@ class Entry_Region(Region):
         else:
             dtools.print(*orig, " " * size[0])
             dtools.print(*orig, self.msg)
+        dtools.highlight(orig[0] + self.cursor_pos, orig[1], 1, 1, bg=self.eol_colour)
+
+        
 
     def key(self, s, key_code, selected):
         if selected:
@@ -45,13 +50,19 @@ class Entry_Region(Region):
             if 32 <= key_code <= 126:
                 key = str(chr(key_code))
                 self.msg += key
+                self.cursor_pos += 1
 
                 self.window.render(s, self)
 
             elif key_code == -300:
                 if len(self.msg) > 0:
                     self.msg = self.msg[:-1]
+                    self.cursor_pos -= 1
                     self.window.render(s, self)
+
+    def ping(self, s):
+        self.eol_colour = (self.eol_colour + 7) % 14
+        self.window.render(s, self)
 
 
 class Debug_Region(Region):
@@ -59,12 +70,18 @@ class Debug_Region(Region):
         super().__init__("Debug", show_name=True)
 
         self.key_code = 0
+        self.i = 0
 
     def draw(self, s, orig, size, selected):
         dtools.print(*orig, f"Key code: {self.key_code}")
+        dtools.print(orig[0], orig[1]+1, str(self.i))
 
     def key(self, s, key_code, selected):
         self.key_code = key_code
+        self.window.render(s, self)
+
+    def ping(self, s):
+        self.i += 1
         self.window.render(s, self)
 
 def demo(s):
@@ -86,8 +103,7 @@ def demo(s):
 
     main_window.render(s)
 
-    msg = ""
-    s.refresh()
+    last_ping_time = time()
     while True:
         if s.has_resized():
             raise ResizeScreenError("yes")
@@ -96,6 +112,10 @@ def demo(s):
         if event:
             main_window.parse_event(s, event)
             s.refresh()
+
+        if time() - last_ping_time >= 1:
+            main_window.ping(s)
+            last_ping_time = time()
 
 
 while True:

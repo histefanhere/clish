@@ -40,6 +40,9 @@ class Drawtool():
             for i in range(x + 1, x + w):
                 self.print(i, y_ord, hort, **kwargs)
 
+    def highlight(self, x, y, w, h, **kwargs):
+        self.screen.highlight(x, y, w, h, **kwargs)
+
     def set_screen(self, s):
         self.screen = s
         return self
@@ -72,6 +75,9 @@ class Region:
 
     # Should be manually defined if this is desired
     def key(self, s, key_code, selected):
+        pass
+
+    def ping(self, s):
         pass
 
 class Window:
@@ -281,3 +287,8 @@ class Window:
 
         # Return self for easy chaining
         return self
+
+    def ping(self, s):
+        for rd in self.regions:
+            rd['region'].ping(s)
+
