@@ -108,10 +108,11 @@ def demo(s):
 # Create window here to allow data persistency
 main_window = Window("CLISH", 3, 4)
 main_window.add_region(topMenu(), 0, 0, colspan=3)
-main_window.add_region(Region("region"), 0, 1, rowspan=3)
-main_window.add_region(Region("region"), 1, 1, rowspan=2)
+main_window.add_region(Region("region1"), 0, 1, rowspan=3)
+main_window.add_region(Region("region2"), 1, 1, rowspan=2)
 main_window.add_region(Entry_Region(), 1, 3)
-main_window.add_region(Region("region"), 2, 1)
+main_window.selected = 3
+main_window.add_region(Region("region3"), 2, 1)
 main_window.add_region(Debug_Region(), 2, 2, rowspan=2)
 
 while True:

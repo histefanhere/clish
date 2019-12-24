@@ -124,12 +124,11 @@ class Window:
             "region": region,
             "div": (x, y),
             "span": (colspan, rowspan),
-            "selected": False
+            "index": len(self.regions)
         })
         if self.selected == None:
             if self.regions[-1]['region'].selectable:
                 self.selected = len(self.regions) - 1
-                self.regions[-1]['selected'] = True
 
         if region.ping_period:
             self.regions[-1]['ping_period'] = region.ping_period
@@ -159,7 +158,7 @@ class Window:
             )
 
             # Render the region!
-            rd['region'].render(s, orig, size, rd['selected'])
+            rd['region'].render(s, orig, size, True if rd['index'] == self.selected else False)
 
         if region:
             rd = region
@@ -187,23 +186,22 @@ class Window:
             key_code = event.key_code
 
             for rd in self.regions:
-                rd['region'].key(s, key_code, rd['selected'])
+                rd['region'].key(s, key_code, True if rd['index'] == self.selected else False)
 
             # -301 is TAB, -302 is SHIFT + TAB
             if key_code in (-301, -302):
-                # We need to re-render the currently selected region, and the next
-                self.regions[self.selected]['selected'] = False
-                self.render(s, self.regions[self.selected])
-
+                # Figure out if we should go one region forward or backward
                 diff = 1
                 if key_code == -302:
                     diff = -1
+
+                old_selected = self.selected
                 while True:
                     self.selected = (self.selected + diff) % len(self.regions)
                     if self.regions[self.selected]['region'].selectable:
                         break
 
-                self.regions[self.selected]['selected'] = True
+                self.render(s, self.regions[old_selected])
                 self.render(s, self.regions[self.selected])
 
                 s.refresh()
