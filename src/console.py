@@ -52,6 +52,7 @@ class Entry_Region(Region):
 
                 self.window.render(s, self)
 
+            # Backspace
             elif key_code == -300:
                 if len(self.msg) > 0:
                     self.msg = self.msg[:-1]
@@ -71,8 +72,9 @@ class Debug_Region(Region):
         self.i = 0
 
     def draw(self, s, orig, size, selected):
-        dtools.print(*orig, f"Key code: {self.key_code}")
-        dtools.print(orig[0], orig[1]+1, str(self.i))
+        dtools.print(*orig, f"KEY CODE OF KEY PRESSED: {self.key_code}")
+        dtools.print(orig[0], orig[1]+1, f"SECONDS: {self.i}")
+        dtools.print(orig[0], orig[1]+2, f"SCREEN SIZE: {s.dimensions}")
 
     def key(self, s, key_code, selected):
         self.key_code = key_code
