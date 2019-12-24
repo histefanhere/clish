@@ -14,7 +14,7 @@ interfaces = ["Discord", "Messenger"]
 
 class topMenu(Region):
     def __init__(self):
-        super().__init__("top region", border=True)
+        super().__init__("top region", border=True, selectable=False)
 
     def draw(self, s, orig, size, selected):
         dtools.print(*orig, "\t".join(interfaces), colour=colours.green)
@@ -59,7 +59,7 @@ class Entry_Region(Region):
 
 class Debug_Region(Region):
     def __init__(self):
-        super().__init__("Debug", show_name=True, ping_period=1)
+        super().__init__("Debug", show_name=True, ping_period=1, selectable=False)
 
         self.key_code = 0
         self.i = 0

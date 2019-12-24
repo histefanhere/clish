@@ -50,11 +50,13 @@ class Drawtool():
 
 
 class Region:
-    def __init__(self, name, border=True, show_name=False, ping_period=None):
+    def __init__(self, name, border=True, show_name=False, ping_period=None, selectable=True):
         self.name = name
         self.has_border = border
         self.show_name = show_name
         self.ping_period = ping_period
+        self.selectable = selectable
+
 
     # Draw the border for this region. Will do this automatically if border=True is specified
     def border(self, s, orig, size, **kwargs):
@@ -86,8 +88,8 @@ class Window:
         self.name = name
         self.divs = (divs_x, divs_y)
         self.regions = []
-        # The first region to be added to the window is the selected one
-        self.selected = 0
+        # The first selectable region to be added to the window is the selected one
+        self.selected = None
 
     # Set the screen for the window. When this is done, the auto widths and heights for the divisions are calculated
     def set_screen(self, s):
@@ -122,8 +124,13 @@ class Window:
             "region": region,
             "div": (x, y),
             "span": (colspan, rowspan),
-            "selected": True if len(self.regions) == 0 else False,
+            "selected": False
         })
+        if self.selected == None:
+            if self.regions[-1]['region'].selectable:
+                self.selected = len(self.regions) - 1
+                self.regions[-1]['selected'] = True
+
         if region.ping_period:
             self.regions[-1]['ping_period'] = region.ping_period
             self.regions[-1]['last_ping'] = time.time()
@@ -191,7 +198,10 @@ class Window:
                 diff = 1
                 if key_code == -302:
                     diff = -1
-                self.selected = (self.selected + diff) % len(self.regions)
+                while True:
+                    self.selected = (self.selected + diff) % len(self.regions)
+                    if self.regions[self.selected]['region'].selectable:
+                        break
 
                 self.regions[self.selected]['selected'] = True
                 self.render(s, self.regions[self.selected])
