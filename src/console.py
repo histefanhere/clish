@@ -91,19 +91,13 @@ def demo(s):
     # Update the screen instance for drawing tools
     dtools.set_screen(s)
 
-    main_window = Window("CLISH", 3, 4)
-
+    # The window needs to re-calculate all the row and column dimensions
     main_window.set_screen(s)
     main_window.configure_row(0, height=3)
     main_window.configure_row(3, height=3)
     main_window.configure_column(1, weight=2)
-    main_window.add_region(topMenu(), 0, 0, colspan=3)
-    main_window.add_region(Test_Region(), 0, 1, rowspan=3)
-    main_window.add_region(Test_Region(), 1, 1, rowspan=2)
-    main_window.add_region(Entry_Region(), 1, 3)
-    main_window.add_region(Test_Region(), 2, 1)
-    main_window.add_region(Debug_Region(), 2, 2, rowspan=2)
 
+    # Render the window onto the screen
     main_window.render(s)
 
     while True:
@@ -115,8 +109,17 @@ def demo(s):
             main_window.parse_event(s, event)
             s.refresh()
 
+        # This will ping all the windows regions if needed, used for constantly refreshing regions
         main_window.ping(s)
 
+# Create window here to allow data persistency
+main_window = Window("CLISH", 3, 4)
+main_window.add_region(topMenu(), 0, 0, colspan=3)
+main_window.add_region(Test_Region(), 0, 1, rowspan=3)
+main_window.add_region(Test_Region(), 1, 1, rowspan=2)
+main_window.add_region(Entry_Region(), 1, 3)
+main_window.add_region(Test_Region(), 2, 1)
+main_window.add_region(Debug_Region(), 2, 2, rowspan=2)
 
 while True:
     try:
