@@ -91,8 +91,9 @@ def demo(s):
     # Update the screen instance for drawing tools
     dtools.set_screen(s)
 
-    main_window = Window(s, "CLISH", 3, 4)
+    main_window = Window("CLISH", 3, 4)
 
+    main_window.set_screen(s)
     main_window.configure_row(0, height=3)
     main_window.configure_row(3, height=3)
     main_window.configure_column(1, weight=2)

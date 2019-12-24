@@ -83,19 +83,23 @@ class Region:
         pass
 
 class Window:
-    def __init__(self, s, name, divs_x, divs_y):
-        self.s = s
-        self.width = s.width
-        self.height = s.height
+    def __init__(self, name, divs_x, divs_y):
         self.name = name
         self.divs = (divs_x, divs_y)
         self.regions = []
         # The first region to be added to the window is the selected one
         self.selected = 0
 
+    # Set the screen for the window. When this is done, the auto widths and heights for the divisions are calculated
+    def set_screen(self, s):
+        self.s = s
+        self.width = self.s.width
+        self.height = self.s.height
+
         # Widths/heights of the columns\rows, respectivley.
-        self.columns = list([{"type":"auto", "value": s.width // self.divs[0]} for x in range(divs_x)])
-        self.rows = list([{"type":"auto", "value": s.height // self.divs[1]} for x in range(divs_y)])
+        self.columns = list([{"type":"auto", "value": self.width // self.divs[0]} for x in range(self.divs[0])])
+        self.rows = list([{"type":"auto", "value": self.height // self.divs[1]} for x in range(self.divs[1])])
+
 
     # Add a region to the window in the `x`th column division and `y`th row division
     # 0 <= x < divs_x, and 0 <= y < divs_y
