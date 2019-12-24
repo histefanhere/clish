@@ -29,7 +29,7 @@ class topMenu(Region):
 
 class Entry_Region(Region):
     def __init__(self):
-        super().__init__("Entry", show_name=True)
+        super().__init__("Entry", show_name=True, ping_period=0.5)
         self.msg = ""
         self.eol_colour = 0
         self.cursor_pos = 0
@@ -41,8 +41,6 @@ class Entry_Region(Region):
             dtools.print(*orig, " " * size[0])
             dtools.print(*orig, self.msg)
         dtools.highlight(orig[0] + self.cursor_pos, orig[1], 1, 1, bg=self.eol_colour)
-
-        
 
     def key(self, s, key_code, selected):
         if selected:
@@ -67,7 +65,7 @@ class Entry_Region(Region):
 
 class Debug_Region(Region):
     def __init__(self):
-        super().__init__("Debug", show_name=True)
+        super().__init__("Debug", show_name=True, ping_period=1)
 
         self.key_code = 0
         self.i = 0
@@ -83,6 +81,7 @@ class Debug_Region(Region):
     def ping(self, s):
         self.i += 1
         self.window.render(s, self)
+
 
 def demo(s):
     s.clear()
@@ -103,7 +102,6 @@ def demo(s):
 
     main_window.render(s)
 
-    last_ping_time = time()
     while True:
         if s.has_resized():
             raise ResizeScreenError("yes")
@@ -113,9 +111,7 @@ def demo(s):
             main_window.parse_event(s, event)
             s.refresh()
 
-        if time() - last_ping_time >= 1:
-            main_window.ping(s)
-            last_ping_time = time()
+        main_window.ping(s)
 
 
 while True:

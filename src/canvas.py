@@ -1,4 +1,5 @@
 from asciimatics.event import KeyboardEvent
+import time
 
 from constants import errors as e
 from constants import colours
@@ -49,10 +50,11 @@ class Drawtool():
 
 
 class Region:
-    def __init__(self, name, border=True, show_name=False):
+    def __init__(self, name, border=True, show_name=False, ping_period=None):
         self.name = name
         self.has_border = border
         self.show_name = show_name
+        self.ping_period = ping_period
 
     # Draw the border for this region. Will do this automatically if border=True is specified
     def border(self, s, orig, size, **kwargs):
@@ -117,8 +119,11 @@ class Window:
             "region": region,
             "div": (x, y),
             "span": (rowspan, colspan),
-            "selected": True if len(self.regions) == 0 else False
+            "selected": True if len(self.regions) == 0 else False,
         })
+        if region.ping_period:
+            self.regions[-1]['ping_period'] = region.ping_period
+            self.regions[-1]['last_ping'] = time.time()
 
         # Return self for easy chaining
         return self
@@ -290,5 +295,8 @@ class Window:
 
     def ping(self, s):
         for rd in self.regions:
-            rd['region'].ping(s)
+            if 'ping_period' in rd:
+                if rd['last_ping'] + rd['ping_period'] < time.time():
+                    rd['last_ping'] = time.time()
+                    rd['region'].ping(s)
 
