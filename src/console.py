@@ -11,13 +11,6 @@ dtools = Drawtool()
 
 interfaces = ["Discord", "Messenger"]
 
-class Test_Region(Region):
-    def __init__(self):
-        super().__init__("region", border=True)
-
-    def draw(self, s, orig, size, selected):
-        dtools.print(*orig, "#")
-
 
 class topMenu(Region):
     def __init__(self):
@@ -115,10 +108,10 @@ def demo(s):
 # Create window here to allow data persistency
 main_window = Window("CLISH", 3, 4)
 main_window.add_region(topMenu(), 0, 0, colspan=3)
-main_window.add_region(Test_Region(), 0, 1, rowspan=3)
-main_window.add_region(Test_Region(), 1, 1, rowspan=2)
+main_window.add_region(Region("region"), 0, 1, rowspan=3)
+main_window.add_region(Region("region"), 1, 1, rowspan=2)
 main_window.add_region(Entry_Region(), 1, 3)
-main_window.add_region(Test_Region(), 2, 1)
+main_window.add_region(Region("region"), 2, 1)
 main_window.add_region(Debug_Region(), 2, 2, rowspan=2)
 
 while True:

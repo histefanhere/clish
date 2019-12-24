@@ -72,10 +72,9 @@ class Region:
         else:
             self.draw(s, orig, size, selected)
 
-    def draw(self, *args, **kwargs):
-        raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
+    def draw(self, s, orig, size, selected):
+        pass
 
-    # Should be manually defined if this is desired
     def key(self, s, key_code, selected):
         pass
 
