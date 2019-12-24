@@ -40,7 +40,8 @@ class Entry_Region(Region):
         else:
             dtools.print(*orig, " " * size[0])
             dtools.print(*orig, self.msg)
-        dtools.highlight(orig[0] + self.cursor_pos, orig[1], 1, 1, bg=self.eol_colour)
+        if selected:
+            dtools.highlight(orig[0] + self.cursor_pos, orig[1], 1, 1, bg=self.eol_colour)
 
     def key(self, s, key_code, selected):
         if selected:
@@ -49,7 +50,6 @@ class Entry_Region(Region):
                 key = str(chr(key_code))
                 self.msg += key
                 self.cursor_pos += 1
-
                 self.window.render(s, self)
 
             # Backspace
@@ -91,10 +91,10 @@ def demo(s):
     # Update the screen instance for drawing tools
     dtools.set_screen(s)
 
-    main_window = Window(s, "CLISH", 3, 3)
+    main_window = Window(s, "CLISH", 3, 4)
 
     main_window.configure_row(0, height=3)
-    main_window.configure_row(2, height=3)
+    main_window.configure_row(3, height=3)
     main_window.configure_column(1, weight=2)
     main_window.add_region(topMenu(), 0, 0, rowspan=3)
     main_window.add_region(Test_Region(), 0, 1, colspan=2)
