@@ -71,7 +71,7 @@ class Region:
         raise e.AbstractMethodNotImplementedError(f"Region does not have a draw() method specified")
 
     # Should be manually defined if this is desired
-    def key(self, s, key_code):
+    def key(self, s, key_code, selected):
         pass
 
 class Window:
@@ -165,7 +165,8 @@ class Window:
         if isinstance(event, KeyboardEvent):
             key_code = event.key_code
 
-            self.regions[self.selected]['region'].key(s, key_code)
+            for rd in self.regions:
+                rd['region'].key(s, key_code, rd['selected'])
 
             # -301 is TAB, -302 is SHIFT + TAB
             if key_code in (-301, -302):
