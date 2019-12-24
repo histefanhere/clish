@@ -106,7 +106,7 @@ class Window:
                 f"In {self.name} Window region was created at ({x}, {y}) while divisions are ({self.divs[0]}, {self.divs[1]})")
             return
 
-        if not (0 < x + rowspan <= self.divs[0] and 0 < y + colspan <= self.divs[1]):
+        if not (0 < x + colspan <= self.divs[0] and 0 < y + rowspan <= self.divs[1]):
             raise e.RegionSpanOutOfBoundsError(
                 f"In {self.name} Window region was created with span ({rowspan}, {colspan}) while divisions are ({self.divs[0]}, {self.divs[1]})")
             return
@@ -118,7 +118,7 @@ class Window:
         self.regions.append({
             "region": region,
             "div": (x, y),
-            "span": (rowspan, colspan),
+            "span": (colspan, rowspan),
             "selected": True if len(self.regions) == 0 else False,
         })
         if region.ping_period:
