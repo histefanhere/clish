@@ -230,7 +230,8 @@ class Window:
             else:
                 return 0
         # amount = sum(map(is_auto, self.rows))
-        amount = len([x for x in self.rows if x['type'] == 'auto']) + sum(map(lambda x: x['weight'], [x for x in self.rows if x['type'] == "heavy"]))
+        amount = len([x for x in self.rows if x['type'] == 'auto'])
+        amount += sum(map(lambda x: x['weight'], [x for x in self.rows if x['type'] == "heavy"]))
 
         auto_height = self.height - sum([x['value'] for x in self.rows if x['type'] == "fixed"])
         self.auto_height = auto_height
@@ -280,7 +281,8 @@ class Window:
             else:
                 return 0
         # amount = sum(map(is_auto, self.rows))
-        amount = len([x for x in self.columns if x['type'] == 'auto']) + sum(map(lambda x: x['weight'], [x for x in self.columns if x['type'] == "heavy"]))
+        amount = len([x for x in self.columns if x['type'] == 'auto'])
+        amount += sum(map(lambda x: x['weight'], [x for x in self.columns if x['type'] == "heavy"]))
 
         auto_width = self.width - sum([x['value'] for x in self.columns if x['type'] == "fixed"])
         # Convert rows. if a row is auto, set its hight to a factor of the remaining space
