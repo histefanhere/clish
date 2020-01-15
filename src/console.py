@@ -4,12 +4,14 @@ from asciimatics.exceptions import ResizeScreenError
 import sys
 from time import sleep, time
 
-from constants import colours
+from constants import colours, keys
 from canvas import Region, Window, Drawtool
+from chats import Chat
 
 dtools = Drawtool()
 
-interfaces = ["Discord", "Messenger"]
+# interfaces = ["Discord", "Messenger"]
+interfaces = {}
 
 
 class topMenu(Region):
@@ -17,7 +19,8 @@ class topMenu(Region):
         super().__init__("top region", border=True, selectable=False)
 
     def draw(self, s, orig, size, selected):
-        dtools.print(*orig, "\t".join(interfaces), colour=colours.green)
+        dtools.print(*orig, "I am the top menu! Huzzah!")
+        # dtools.print(*orig, "\t".join(interfaces), colour=colours.green)
 
 
 class Entry_Region(Region):
@@ -39,14 +42,14 @@ class Entry_Region(Region):
     def key(self, s, key_code, selected):
         if selected:
             # Standard keyboard characters + numbers + symbols
-            if 32 <= key_code <= 126:
+            if keys.is_character(key_code):
                 key = str(chr(key_code))
                 self.msg += key
                 self.cursor_pos += 1
                 self.window.render(s, self)
 
             # Backspace
-            elif key_code == -300:
+            elif key_code == keys.BACKSPACE:
                 if len(self.msg) > 0:
                     self.msg = self.msg[:-1]
                     self.cursor_pos -= 1
@@ -77,6 +80,32 @@ class Debug_Region(Region):
         self.i += 1
         self.window.render(s, self)
 
+class List_Region(Region):
+    def __init__(self):
+        super().__init__("Interfaces", show_name=True)
+
+        self.cursor = 0
+
+    def draw(self, s, orig, size, selected):
+        for i, inter in enumerate(interfaces):
+            dtools.print(orig[0], orig[1]+i, inter)
+
+interfaces['Discord'] = {
+    "Direct Messages": {
+        "coolguy": Chat()
+    },
+    "Servers": {
+        "sidcobot": Chat()
+    }
+}
+interfaces['Facebook'] = {
+    "Direct Messages": {
+        "josh123": Chat()
+    },
+    "Group Chats": {
+        "amino propeino": Chat()
+    }
+}
 
 def demo(s):
     s.clear()
@@ -108,7 +137,7 @@ def demo(s):
 # Create window here to allow data persistency
 main_window = Window("CLISH", 3, 4)
 main_window.add_region(topMenu(), 0, 0, colspan=3)
-main_window.add_region(Region("region1"), 0, 1, rowspan=3)
+main_window.add_region(List_Region(), 0, 1, rowspan=3)
 main_window.add_region(Region("region2"), 1, 1, rowspan=2)
 main_window.add_region(Entry_Region(), 1, 3)
 main_window.selected = 3
