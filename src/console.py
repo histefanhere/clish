@@ -84,11 +84,51 @@ class List_Region(Region):
     def __init__(self):
         super().__init__("Interfaces", show_name=True)
 
+        self.path = []
         self.cursor = 0
 
     def draw(self, s, orig, size, selected):
-        for i, inter in enumerate(interfaces):
-            dtools.print(orig[0], orig[1]+i, inter)
+        # get the available options in the current path
+        options = interfaces
+        for dir_ in self.path:
+            options = options[dir_]
+
+        if len(self.path) == 0:
+            dtools.print(*orig, "Home")
+        else:
+            # Prints the first and last thing here. Kinda weird, but saves us from re-writing the if statement.
+            dtools.print(*orig, self.path[-1])
+            dtools.print(orig[0], orig[1]+len(options)+2, "< Back")
+        dtools.print(orig[0], orig[1]+1, "-"*size[0])
+
+        for i, option in enumerate(options):
+            string = option
+            if not isinstance(options[option], Chat):
+                string += " >"
+            bg = colours.black
+            if i == self.cursor:
+                bg = colours.magenta
+            dtools.print(orig[0], orig[1]+i+2, string, bg=bg)
+    
+    def key(self, s, key_code, selected):
+        # get the available options in the current path
+        options = interfaces
+        for dir_ in self.path:
+            options = options[dir_]
+
+        if key_code in (keys.ARROW_DOWN, keys.ARROW_UP):
+            direction = {keys.ARROW_DOWN: 1, keys.ARROW_UP: -1}[key_code]
+            self.cursor = (self.cursor + direction) % len(options)
+
+            self.window.render(s, self)
+        
+        elif key_code == keys.ARROW_RIGHT:
+            self.path.append(list(options)[self.cursor])
+
+            self.window.render(s, self)
+        
+        
+            
 
 interfaces['Discord'] = {
     "Direct Messages": {
