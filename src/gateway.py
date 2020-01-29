@@ -43,7 +43,7 @@ class FacebookGateway(OtherGateway):
 
     def __init__(self):
         super().__init__()
-        self.email = "foggycityboy44@gmail.com"
+        self.email = "censored"
         self.password = "ThisIsABot"
         self.session = aiohttp.ClientSession()
         self.chats = {}
@@ -141,7 +141,7 @@ class DiscordGateway(WebsocketAPIGateway):
 
     def __init__(self):
         super(WebsocketAPIGateway, self).__init__()
-        self.token = "NTUzODc2MzA0NDIwNjY3Mzky.D2UdAQ._ABnKKMRzGyn9aHrJoA7E5Hd1ZU"  # plz dont fuck with my self bot
+        self.token = "censored"  # plz dont fuck with my self bot
         self.heartbeak_interval = None
         self._ready = False
         self.loop = asyncio.get_event_loop()
