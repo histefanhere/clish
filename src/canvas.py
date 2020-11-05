@@ -83,6 +83,11 @@ class Region:
     def ping(self, s):
         pass
 
+    def clear(self, s, orig, size):
+        d = Drawtool(s)
+        for y in range(orig[1], orig[1]+size[1]):
+                d.print(orig[0], y, " "*size[0])
+
 class Window:
     def __init__(self, name, divs_x, divs_y):
         self.name = name
@@ -139,7 +144,7 @@ class Window:
 
     # Render all the regions defined in the window
     # Or just a specific region if `region` is specified
-    def render(self, s, region=None):
+    def render(self, s, region=None, clear=True):
         def calc_and_render(rd):
             # Calculate its size dimension and origin position
             # div_size = (s.width // self.divs[0], s.height // self.divs[1])
@@ -158,6 +163,8 @@ class Window:
             )
 
             # Render the region!
+            if clear:
+                rd['region'].clear(s, orig, size)
             rd['region'].render(s, orig, size, True if rd['index'] == self.selected else False)
 
         if region:

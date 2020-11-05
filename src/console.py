@@ -6,7 +6,7 @@ from time import sleep, time
 
 from constants import colours, keys
 from canvas import Region, Window, Drawtool
-from chats import Chat
+from constructs import *
 
 dtools = Drawtool()
 
@@ -98,7 +98,7 @@ class List_Region(Region):
         else:
             # Prints the first and last thing here. Kinda weird, but saves us from re-writing the if statement.
             dtools.print(*orig, self.path[-1])
-            dtools.print(orig[0], orig[1]+len(options)+2, "< Back")
+            #dtools.print(orig[0], orig[1]+len(options)+2, "< Back")
         dtools.print(orig[0], orig[1]+1, "-"*size[0])
 
         for i, option in enumerate(options):
@@ -109,26 +109,42 @@ class List_Region(Region):
             if i == self.cursor:
                 bg = colours.magenta
             dtools.print(orig[0], orig[1]+i+2, string, bg=bg)
-    
+
+        if len(self.path) != 0:
+            bg = colours.black
+            if self.cursor == len(options):
+                bg = colours.magenta
+            dtools.print(orig[0], orig[1]+len(options)+2, "< Back", bg=bg)
+
     def key(self, s, key_code, selected):
+        if not selected: return
         # get the available options in the current path
         options = interfaces
         for dir_ in self.path:
             options = options[dir_]
 
+        # Navigate through the list
         if key_code in (keys.ARROW_DOWN, keys.ARROW_UP):
             direction = {keys.ARROW_DOWN: 1, keys.ARROW_UP: -1}[key_code]
-            self.cursor = (self.cursor + direction) % len(options)
+
+            self.cursor = (self.cursor + direction) % (len(options) + (1 if len(self.path) >= 1 else 0))
 
             self.window.render(s, self)
-        
+
+        # Select the thing
         elif key_code == keys.ARROW_RIGHT:
+            if self.cursor == len(options):
+                return
             self.path.append(list(options)[self.cursor])
-
+            self.cursor = 0
             self.window.render(s, self)
-        
-        
-            
+
+        # Go back
+        elif key_code == keys.ARROW_LEFT:
+            if len(self.path) > 0:
+                self.path.pop()
+                self.cursor = 0
+                self.window.render(s, self)
 
 interfaces['Discord'] = {
     "Direct Messages": {
@@ -173,6 +189,8 @@ def demo(s):
 
         # This will ping all the windows regions if needed, used for constantly refreshing regions
         main_window.ping(s)
+
+        sleep(1./60)
 
 # Create window here to allow data persistency
 main_window = Window("CLISH", 3, 4)
